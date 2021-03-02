@@ -2,7 +2,7 @@
 
 A FTP-Client for the ESP8266
 
-[![GitHub last commit](https://img.shields.io/github/last-commit/justinleahy/ESP8266_FTPClient)
+![GitHub last commit](https://img.shields.io/github/last-commit/justinleahy/ESP8266_FTPClient)
 
 * The main purpose of this library was to upload moisture level values to a json file in a locally hosted FTP server, as seen here https://github.com/justinleahy/arduino-moisture-sensor.
 
