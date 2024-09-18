@@ -1,33 +1,34 @@
 {
-  "name": "esp32_ftpclient",
-  "version": "0.1.4",
-  "description": "A FTP-Client for the ESP8266",
-  "keywords": "sensors, low power, mobile, ftp, web, cloud, iot, esp32, espressif",
+  "name": "TinyFTPClient",
+  "version": "1.0.0",
+  "description": "A tiny Arduino/PlatformIO library for a FTP client running on ESP8266.",
+  "keywords": "FTP, ESP8266",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/exocet22/TinyFTPClient"
+  },
   "authors":
   [
     {
-      "name": "Justin Leahy",
-      "url": "https://github.com/justinleahy",
+      "name": "Yvan Régeard",
+      "email": "yvan.regeard@gmail.com",
       "maintainer": true
+    },
+    {
+      "name": "Justin Leahy",
+      "url": "https://github.com/justinleahy"
     },
     {
       "name":  "Leonardo Bispo",
       "url":   "https://github.com/ldab"
     }
   ],
-  "repository":
+  "license": "MIT",
+  "frameworks": "*",
+  "platforms": "*",
+  "export":
   {
-    "type": "git",
-    "url": "https://github.com/justinleahy/ESP8266_FTPClient.git"
-  },
-  "homepage": "https://github.com/justinleahy/ESP8266_FTPClient",
-  "export": {
-    "exclude": [
-      "linux",
-      "extras"
-    ]
-  },
-  "frameworks": "arduino",
-  "platforms": "espressif32",
-  "examples": "examples/*/*.ino"
+    "include": ["src", "examples", "LICENSE.txt"]
+  }
 }
