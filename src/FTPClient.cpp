@@ -296,7 +296,7 @@
     // Open passive mode
     if (open_passive_mode())
     {
-      // Run TYPE A command
+      // Run MLSD command
       if (run_command("MLSD ",directory_name)==150)
       {
         // Wait for passive server answer
