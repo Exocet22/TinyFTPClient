@@ -11,8 +11,15 @@
 
 
 // Includes
-#include <ESP8266WiFi.h>
-#include <FS.h>
+#ifdef ARDUINO_ARCH_ESP8266
+  #include <ESP8266WiFi.h>
+  #include <FS.h>
+#endif
+#ifdef ARDUINO_ARCH_ESP32
+  #include <WiFi.h>
+  #include <WiFiClient.h>
+  #include <SPIFFS.h>
+#endif
 #include <FTPClient.h>
 #include "octocat.h"
 
@@ -35,20 +42,43 @@ void display_file_system_information()
   if (SPIFFS.begin())
   {
     // Display files
-    Dir directory=SPIFFS.openDir("/");
-    while(directory.next())
-    {
-      File resource_file=directory.openFile("r");
-      Serial.printf("%s (%d bytes)\n",directory.fileName().c_str(),resource_file.size());
-      resource_file.close();
-    }
+    #ifdef ARDUINO_ARCH_ESP8266
+      Dir directory=SPIFFS.openDir("/");
+      while(directory.next())
+      {
+        File resource_file=directory.openFile("r");
+        Serial.printf("%s (%d bytes)\n",directory.fileName().c_str(),resource_file.size());
+        resource_file.close();
+      }
+    #endif
+    #ifdef ARDUINO_ARCH_ESP32
+        File root_directory=SPIFFS.open("/");
+        File file=root_directory.openNextFile();
+        while(file)
+        {
+          Serial.printf("%s (%d bytes)\n",file.path(),file.size());
+          file = root_directory.openNextFile();
+        }
+    #endif
+
+    // Get SPIFFS informations
+    size_t totalKBytes=0;
+    size_t usedKBytes=0;
+    #ifdef ARDUINO_ARCH_ESP8266
+      FSInfo fs_info;
+      SPIFFS.info(fs_info);
+      totalKBytes=fs_info.totalBytes>>10;
+      usedKBytes=fs_info.usedBytes>>10;
+    #endif
+    #ifdef ARDUINO_ARCH_ESP32
+      totalKBytes=SPIFFS.totalBytes()>>10;
+      usedKBytes=SPIFFS.usedBytes()>>10;
+    #endif
 
     // Display space used
-    FSInfo fs_info;
-    SPIFFS.info(fs_info);
-    Serial.printf("Total : %d KBytes\n",fs_info.totalBytes/1024);
-    Serial.printf("Used : %d KBytes\n",fs_info.usedBytes/1024);
-    Serial.printf("Remaining : %d KBytes\n",fs_info.totalBytes/1024-fs_info.usedBytes/1024);
+    Serial.printf("Total: %d KBytes\n",totalKBytes);
+    Serial.printf("Used: %d KBytes\n",usedKBytes);
+    Serial.printf("Free: %d KBytes\n",totalKBytes-usedKBytes);
   }
 }
 

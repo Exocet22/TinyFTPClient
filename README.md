@@ -1,6 +1,6 @@
 # TinyFTPClient
 
-A tiny [Arduino](https://arduino.cc/)/[PlatformIO](https://platformio.org/) library for a FTP client running on ESP8266.
+A tiny [Arduino](https://arduino.cc/)/[PlatformIO](https://platformio.org/) library for a FTP client running on ESP8266 and ESP32.
 
 Forked from [https://github.com/justinleahy/ESP8266_FTPClient](https://github.com/justinleahy/ESP8266_FTPClient).
 Many thanks to all the authors and contributors !!!
