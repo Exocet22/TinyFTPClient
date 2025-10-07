@@ -35,7 +35,7 @@ See [examples](examples) folder.
 ## Updates
 
 - 90KB upload limitation fixed.
-- Upload/download files directly from SPIFFS.
+- Upload/download files directly from SPIFFS or File objects.
 - Published on PlatformIO registry: [TinyFTPClient library](https://registry.platformio.org/libraries/exocet22/TinyFTPCLient).
 
 ## License
