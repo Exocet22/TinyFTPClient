@@ -100,23 +100,34 @@
     // Mount file system
     if (SPIFFS.begin())
     {
-      // Open source file
-      File source_file=SPIFFS.open(spiffs_file_name,"r");
-      if (source_file)
-      {
-        // Open passive mode
-        if (open_passive_mode())
-        {
-          // Run STOR command
-          if (run_command("STOR ",file_name)==150)
-          {
-            // Send file
-            send(source_file);
-          }
+      // Write data to file
+      return write_file(file_name,SPIFFS.open(spiffs_file_name,"r"));
+    }
 
-          // Close passive mode
-          return close_passive_mode();
+    // Return: error
+    return false;
+  }
+
+
+
+  // Write data to file
+  bool FTPClient::write_file(const char* file_name,File source_file)
+  {
+    // Check if source file is opened
+    if (source_file)
+    {
+      // Open passive mode
+      if (open_passive_mode())
+      {
+        // Run STOR command
+        if (run_command("STOR ",file_name)==150)
+        {
+          // Send file
+          send(source_file);
         }
+
+        // Close passive mode
+        return close_passive_mode();
       }
     }
 
@@ -155,23 +166,34 @@
     // Mount file system
     if (SPIFFS.begin())
     {
-      // Open source file
-      File source_file=SPIFFS.open(spiffs_file_name,"r");
-      if (source_file)
-      {
-        // Open passive mode
-        if (open_passive_mode())
-        {
-          // Run APPE command
-          if (run_command("APPE ",file_name)==150)
-          {
-            // Send file
-            send(source_file);
-          }
+      // Append data to file
+      return append_file(file_name,SPIFFS.open(spiffs_file_name,"r"));
+    }
 
-          // Close passive mode
-          return close_passive_mode();
+    // Return: error
+    return false;
+  }
+
+
+
+  // Append data to file
+  bool FTPClient::append_file(const char* file_name,File source_file)
+  {
+    // Check if source file is opened
+    if (source_file)
+    {
+      // Open passive mode
+      if (open_passive_mode())
+      {
+        // Run APPE command
+        if (run_command("APPE ",file_name)==150)
+        {
+          // Send file
+          send(source_file);
         }
+
+        // Close passive mode
+        return close_passive_mode();
       }
     }
 
@@ -210,23 +232,34 @@
     // Mount file system
     if (SPIFFS.begin())
     {
-      // Open destination file
-      File destination_file=SPIFFS.open(spiffs_file_name,"w");
-      if (destination_file)
-      {
-        // Open passive mode
-        if (open_passive_mode())
-        {
-          // Run RETR command
-          if (run_command("RETR ",file_name)==150)
-          {
-            // Receive file
-            receive(destination_file);
-          }
+      // Read file
+      return read_file(file_name,SPIFFS.open(spiffs_file_name,"w"));
+    }
 
-          // Close passive mode
-          return close_passive_mode();
+    // Return: error
+    return false;
+  }
+
+
+
+  // Read file
+  bool FTPClient::read_file(const char* file_name,File destination_file)
+  {
+    // Check if destination file is opened
+    if (destination_file)
+    {
+      // Open passive mode
+      if (open_passive_mode())
+      {
+        // Run RETR command
+        if (run_command("RETR ",file_name)==150)
+        {
+          // Receive file
+          receive(destination_file);
         }
+
+        // Close passive mode
+        return close_passive_mode();
       }
     }
 

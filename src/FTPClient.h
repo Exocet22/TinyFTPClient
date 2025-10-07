@@ -76,10 +76,13 @@ class FTPClient
     // File management
     bool write_file(const char* file_name,uint8_t* buffer,size_t buffer_size);
     bool write_file(const char* file_name,const char* spiffs_file_name);
+    bool write_file(const char* file_name,File source_file);
     bool append_file(const char* file_name,uint8_t* buffer,size_t buffer_size);
     bool append_file(const char* file_name,const char* spiffs_file_name);
+    bool append_file(const char* file_name,File source_file);
     bool read_file(const char* file_name,uint8_t* buffer,size_t buffer_size);
     bool read_file(const char* file_name,const char* spiffs_file_name);
+    bool read_file(const char* file_name,File destination_file);
     bool rename_file(const char* from,const char* to);
     bool delete_file(const char* file_name);
     bool get_last_modified_time(const char* file_name,char* result);
