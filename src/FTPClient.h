@@ -13,7 +13,7 @@
 
 
 // Constants
-#define FTP_CLIENT_DEFAULT_TIMEOUT              10000             // Default timeout: 10 seconds
+#define FTP_CLIENT_DEFAULT_TIMEOUT              20000             // Default timeout: 20 seconds
 #define FTP_CLIENT_BUFFER_SIZE                  128               // Internal buffer size: 128 bytes
 #define FTP_CLIENT_TRANSFER_BLOCK_SIZE          512               // Block size used during transfer: 512 bytes
 
