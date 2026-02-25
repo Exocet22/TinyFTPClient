@@ -109,7 +109,8 @@ void setup()
   Serial.println("\nConnected");
 
   // Open FTP connection
-  FTPClient ftp_client;
+  WiFiClient tcp_client,passive_tcp_client;
+  FTPClient ftp_client(&tcp_client,&passive_tcp_client);
   if (ftp_client.open(FTP_SERVER_ADDRESS,FTP_SERVER_PORT,FTP_USER_NAME,FTP_USER_PASSWORD))
   {
     // Debug trace

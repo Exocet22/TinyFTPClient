@@ -27,7 +27,9 @@
 // FTPClient public functions
 
   // Constructor
-  FTPClient::FTPClient(uint16_t timeout):
+  FTPClient::FTPClient(Client* p_client,Client* p_passive_client,uint16_t timeout):
+    m_p_client(p_client),
+    m_p_passive_client(p_passive_client),
     m_timeout(timeout),
     m_last_error_code(0)
   {
@@ -35,11 +37,23 @@
 
 
 
+  // Set TCP clients
+  void FTPClient::set_clients(Client* p_client,Client* p_passive_client)
+  {
+    m_p_client=p_client;
+    m_p_passive_client=p_passive_client;
+  }
+
+
+
   // Open connection
   bool FTPClient::open(const char* server_address,const uint16_t server_port,const char* user_name,const char* user_password)
   {
+    // Check client
+    if (!m_p_client) return false;
+
     // Connect to server
-    if(m_client.connect(server_address,server_port))
+    if (m_p_client->connect(server_address,server_port))
     {
       // Check if server is ready for a new user
       if (get_server_answer()==220)
@@ -62,11 +76,14 @@
   // Close connection
   void FTPClient::close()
   {
+    // Check client
+    if (!m_p_client) return;
+
     // Run QUIT command
     run_command("QUIT");
 
     // Close WiFi client
-    m_client.stop();
+    m_p_client->stop();
   }
 
 
@@ -333,6 +350,9 @@
   // List directory
   bool FTPClient::list_directory(const char* directory_name,String* item_list,uint8_t item_list_count)
   {
+    // Check client
+    if (!m_p_passive_client) return false;
+
     // Open passive mode
     if (open_passive_mode())
     {
@@ -341,11 +361,11 @@
       {
         // Wait for passive server answer
         uint32_t timeout=millis()+m_timeout;
-        while((!m_passive_client.available())&&(millis()<timeout)) delay(5);
+        while((!m_p_passive_client->available())&&(millis()<timeout)) delay(5);
 
         // Get directory list
         uint8_t item_count=0;
-        while(m_passive_client.available()) if (item_count<item_list_count) item_list[item_count++]=m_passive_client.readStringUntil('\n');
+        while(m_p_passive_client->available()) if (item_count<item_list_count) item_list[item_count++]=m_p_passive_client->readStringUntil('\n');
       }
 
       // Close passive mode
@@ -363,15 +383,18 @@
   // Run command
   uint16_t FTPClient::run_command(const char* command,const char* param,char* answer)
   {
+    // Check client
+    if (!m_p_client) return 530;
+
     // Initialize error code
     m_last_error_code=530;
 
     // Check connection status
-    if (m_client.connected())
+    if (m_p_client->connected())
     {
       // Send command
-      m_client.print(command);
-      m_client.println(param);
+      m_p_client->print(command);
+      m_p_client->println(param);
 
       // Return command result
       return get_server_answer(answer);
@@ -386,23 +409,26 @@
   // Get answer from server
   uint16_t FTPClient::get_server_answer(char* answer)
   {
+    // Check client
+    if (!m_p_client) return 530;
+
     // Wait for server answer
     uint32_t timeout=millis()+m_timeout;
-    while((!m_client.available())&&(millis()<timeout)) delay(5);
+    while((!m_p_client->available())&&(millis()<timeout)) delay(5);
 
     // Initialize error code
     m_last_error_code=530;
 
     // Check connection status
-    if (m_client.available())
+    if (m_p_client->available())
     {
       // Read server answer
       char buffer[FTP_CLIENT_BUFFER_SIZE];
       uint8_t buffer_count=0;
-      while(m_client.available())
+      while(m_p_client->available())
       {
         // Get byte recieved from server
-        char byte_received=m_client.read();
+        char byte_received=m_p_client->read();
 
         // Store byte in buffer
         if (buffer_count<FTP_CLIENT_BUFFER_SIZE)
@@ -431,6 +457,9 @@
   // Open passive mode
   bool FTPClient::open_passive_mode()
   {
+    // Check client
+    if (!m_p_passive_client) return false;
+
     // Run MLSD command
     char buffer[FTP_CLIENT_BUFFER_SIZE];
     if (run_command("PASV","",buffer)==227)
@@ -450,7 +479,7 @@
         }
 
         // Connect to passive server
-        return m_passive_client.connect(IPAddress(data[0],data[1],data[2],data[3]),(data[4]<<8)|(data[5]<<0));
+        return m_p_passive_client->connect(IPAddress(data[0],data[1],data[2],data[3]),(data[4]<<8)|(data[5]<<0));
       }
     }
 
@@ -463,8 +492,11 @@
   // Close passive mode
   bool FTPClient::close_passive_mode()
   {
+    // Check client
+    if (!m_p_passive_client) return false;
+
     // Stop passive client
-    m_passive_client.stop();
+    m_p_passive_client->stop();
 
     // Return 
     return (get_server_answer()==226);
@@ -475,16 +507,19 @@
   // Receive buffer
   void FTPClient::receive(uint8_t* buffer,size_t buffer_size)
   {
+    // Check client
+    if (!m_p_passive_client) return;
+
     // Wait for passive server answer
     uint32_t timeout=millis()+m_timeout;
-    while((!m_passive_client.available())&&(millis()<timeout)) delay(5);
+    while((!m_p_passive_client->available())&&(millis()<timeout)) delay(5);
 
     // Read all data from passive server
     uint8_t data_byte;
     uint8_t data_byte_count=0;
-    while(m_passive_client.available())
+    while(m_p_passive_client->available())
     {
-      m_passive_client.readBytes((uint8_t*) &data_byte,1);
+      m_p_passive_client->readBytes((uint8_t*) &data_byte,1);
       if (data_byte_count<buffer_size) buffer[data_byte_count++]=data_byte;
     }
   }
@@ -494,15 +529,18 @@
   // Receive file
   void FTPClient::receive(File& destination_file)
   {
+    // Check client
+    if (!m_p_passive_client) return;
+
     // Wait for passive server answer
     uint32_t timeout=millis()+m_timeout;
-    while((!m_passive_client.available())&&(millis()<timeout)) delay(5);
+    while((!m_p_passive_client->available())&&(millis()<timeout)) delay(5);
 
     // Read all data from passive server
     uint8_t block[FTP_CLIENT_TRANSFER_BLOCK_SIZE];
-    while(m_passive_client.available())
+    while(m_p_passive_client->available())
     {
-      size_t block_size=m_passive_client.readBytes(block,FTP_CLIENT_TRANSFER_BLOCK_SIZE);
+      size_t block_size=m_p_passive_client->readBytes(block,FTP_CLIENT_TRANSFER_BLOCK_SIZE);
       if (block_size>0) destination_file.write(block,block_size);
     }
   }
@@ -512,6 +550,9 @@
   // Send buffer
   void FTPClient::send(uint8_t* buffer,size_t buffer_size)
   {
+    // Check client
+    if (!m_p_passive_client) return;
+
     // Write buffer block by block
     uint8_t block[FTP_CLIENT_TRANSFER_BLOCK_SIZE];
     uint32_t block_size=0;
@@ -520,11 +561,11 @@
       block[block_size++]=buffer[i];
       if (block_size==FTP_CLIENT_TRANSFER_BLOCK_SIZE)
       {
-        m_passive_client.write(block,block_size); 
+        m_p_passive_client->write(block,block_size); 
         block_size=0;
       }
     }
-    if (block_size>0) m_passive_client.write(block,block_size);
+    if (block_size>0) m_p_passive_client->write(block,block_size);
   }
 
 
@@ -532,6 +573,9 @@
   // Send file
   void FTPClient::send(File& source_file)
   {
+    // Check client
+    if (!m_p_passive_client) return;
+
     // Write buffer block by block
     uint8_t block[FTP_CLIENT_TRANSFER_BLOCK_SIZE];
     uint32_t block_size=0;
@@ -540,9 +584,9 @@
       block[block_size++]=source_file.read();
       if (block_size==FTP_CLIENT_TRANSFER_BLOCK_SIZE)
       {
-        m_passive_client.write(block,block_size); 
+        m_p_passive_client->write(block,block_size); 
         block_size=0;
       }
     }
-    if (block_size>0) m_passive_client.write(block,block_size);
+    if (block_size>0) m_p_passive_client->write(block,block_size);
   }

@@ -25,14 +25,14 @@ class FTPClient
   // Private attributes
   private:
 
+    // TCP client
+    Client* m_p_client;
+
+    // Passive TCP client
+    Client* m_p_passive_client;
+
     // Timeout
     uint16_t m_timeout;
-
-    // WiFi client
-    WiFiClient m_client;
-
-    // WiFi passive client
-    WiFiClient m_passive_client;
 
 
 
@@ -67,7 +67,10 @@ class FTPClient
   public:
 
     // Constructor
-    FTPClient(uint16_t timeout=FTP_CLIENT_DEFAULT_TIMEOUT);
+    FTPClient(Client* p_client,Client* p_passive_client,uint16_t timeout=FTP_CLIENT_DEFAULT_TIMEOUT);
+
+    // Set TCP clients
+    void set_clients(Client* p_client,Client* p_passive_client);
 
     // Connection
     bool open(const char* server_address,const uint16_t server_port,const char* user_name,const char* user_password);

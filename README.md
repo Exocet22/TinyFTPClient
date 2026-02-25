@@ -36,6 +36,7 @@ See [examples](examples) folder.
 
 - 90KB upload limitation fixed.
 - Upload/download files directly from SPIFFS or File objects.
+- Compatible with WiFi, Ethernet and GSM connectivity.
 - Published on PlatformIO registry: [TinyFTPClient library](https://registry.platformio.org/libraries/exocet22/TinyFTPCLient).
 
 ## License
